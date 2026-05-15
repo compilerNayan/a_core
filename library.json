@@ -1,0 +1,14 @@
+{
+    "name": "a_core",
+    "version": "1.0.0",
+    "description": "Core Library for Spring Boot Plus Plus Framework",
+    "keywords": ["core", "abstraction", "utility"],
+    "authors": [{"name": "Nayan"}],
+    "license": "MIT",
+    "frameworks": "*",
+    "platforms": "*",
+    "dependencies": {
+      "cpp_core": "https://github.com/compilerNayan/a_core.git"
+    }
+}
+  
