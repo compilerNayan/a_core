@@ -9,6 +9,9 @@
     "platforms": "*",
     "dependencies": {
       "cpp_core": "https://github.com/compilerNayan/a_core.git"
+    },
+    "build": {
+        "extraScript": "core_scripts/springbootplusplus_web_pre_build.py"
     }
 }
   
