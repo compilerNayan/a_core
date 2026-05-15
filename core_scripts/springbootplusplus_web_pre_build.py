@@ -19,28 +19,38 @@ import os
 from pathlib import Path
 
 
+_SCRIPT_DIR_NAMES = ("core_scripts", "springbootplusplus_web_scripts")
+
+
 def get_library_dir():
     """
-    Find the springbootplusplus_web_scripts directory by searching up the directory tree.
-    
+    Find the library scripts directory (core_scripts or legacy springbootplusplus_web_scripts).
+
     Returns:
-        Path: Path to the springbootplusplus_web_scripts directory
-        
+        Path: Path to the scripts directory
+
     Raises:
         ImportError: If the directory cannot be found
     """
+    script_parent = Path(__file__).resolve().parent
+    if script_parent.name in _SCRIPT_DIR_NAMES:
+        return script_parent
+
     cwd = Path(os.getcwd())
     current = cwd
     for _ in range(10):  # Search up to 10 levels
-        potential = current / "springbootplusplus_web_scripts"
-        if potential.exists() and potential.is_dir():
-            # print(f"✓ Found library path by searching up directory tree: {potential}")
-            return potential
+        for dir_name in _SCRIPT_DIR_NAMES:
+            potential = current / dir_name
+            if potential.exists() and potential.is_dir():
+                return potential
         parent = current.parent
         if parent == current:  # Reached filesystem root
             break
         current = parent
-    raise ImportError("Could not find springbootplusplus_web_scripts directory")
+    raise ImportError(
+        "Could not find library scripts directory "
+        f"({', '.join(_SCRIPT_DIR_NAMES)})"
+    )
 
 
 def get_project_dir():

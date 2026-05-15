@@ -208,7 +208,14 @@ def execute_scripts(project_dir, library_dir, all_libs=None, library_scripts_dir
             scripts_dir = Path(library_scripts_dir)
         else:
             # Fallback: construct from library_dir
-            scripts_dir = Path(library_dir) / "springbootplusplus_web_scripts"
+            scripts_dir = None
+            for dir_name in ("core_scripts", "springbootplusplus_web_scripts"):
+                candidate = Path(library_dir) / dir_name
+                if candidate.is_dir():
+                    scripts_dir = candidate
+                    break
+            if scripts_dir is None:
+                scripts_dir = Path(library_dir) / "core_scripts"
 
         l7_script_path = scripts_dir / "springbootplusplus_web_core" / "L7_cpp_spring_boot_preprocessor.py"
 
