@@ -56,7 +56,7 @@ using std::optional;
 
 #define Var auto
 #define Val const auto
-#define Const constexpr auto
+#define Const constexpr
 #define Optional std::optional
 
 #define Private public: private:
