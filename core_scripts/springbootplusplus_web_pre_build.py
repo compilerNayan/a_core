@@ -20,11 +20,53 @@ from pathlib import Path
 
 
 _SCRIPT_DIR_NAMES = ("core_scripts", "springbootplusplus_web_scripts")
+_PRE_BUILD_MARKER = "springbootplusplus_web_pre_build.py"
+
+
+def _is_scripts_dir(path):
+    return (
+        path.is_dir()
+        and path.name in _SCRIPT_DIR_NAMES
+        and (path / _PRE_BUILD_MARKER).is_file()
+    )
+
+
+def _search_scripts_dirs(start_path):
+    current = Path(start_path).resolve()
+    for _ in range(10):
+        for dir_name in _SCRIPT_DIR_NAMES:
+            potential = current / dir_name
+            if _is_scripts_dir(potential):
+                return potential
+        parent = current.parent
+        if parent == current:
+            break
+        current = parent
+    return None
+
+
+def _search_pio_libdeps(project_root):
+    pio_libdeps = Path(project_root) / ".pio" / "libdeps"
+    if not pio_libdeps.is_dir():
+        return None
+    for env_dir in pio_libdeps.iterdir():
+        if not env_dir.is_dir():
+            continue
+        for lib_dir in env_dir.iterdir():
+            if not lib_dir.is_dir():
+                continue
+            for dir_name in _SCRIPT_DIR_NAMES:
+                potential = lib_dir / dir_name
+                if _is_scripts_dir(potential):
+                    return potential
+    return None
 
 
 def get_library_dir():
     """
     Find the library scripts directory (core_scripts or legacy springbootplusplus_web_scripts).
+
+    PlatformIO/SCons runs extraScript via exec(), so __file__ is not always available.
 
     Returns:
         Path: Path to the scripts directory
@@ -32,21 +74,26 @@ def get_library_dir():
     Raises:
         ImportError: If the directory cannot be found
     """
-    script_parent = Path(__file__).resolve().parent
-    if script_parent.name in _SCRIPT_DIR_NAMES:
-        return script_parent
+    try:
+        script_parent = Path(__file__).resolve().parent
+        if _is_scripts_dir(script_parent):
+            return script_parent
+    except NameError:
+        pass
 
-    cwd = Path(os.getcwd())
-    current = cwd
-    for _ in range(10):  # Search up to 10 levels
-        for dir_name in _SCRIPT_DIR_NAMES:
-            potential = current / dir_name
-            if potential.exists() and potential.is_dir():
-                return potential
-        parent = current.parent
-        if parent == current:  # Reached filesystem root
-            break
-        current = parent
+    search_roots = [Path(os.getcwd())]
+    project_dir = get_project_dir()
+    if project_dir:
+        search_roots.append(Path(project_dir))
+
+    for root in search_roots:
+        found = _search_pio_libdeps(root)
+        if found:
+            return found
+        found = _search_scripts_dirs(root)
+        if found:
+            return found
+
     raise ImportError(
         "Could not find library scripts directory "
         f"({', '.join(_SCRIPT_DIR_NAMES)})"

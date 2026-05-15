@@ -8,7 +8,8 @@
     "frameworks": "*",
     "platforms": "*",
     "dependencies": {
-      "cpp_core": "https://github.com/compilerNayan/a_core.git"
+      "cpp_core": "https://github.com/compilerNayan/a_core.git",
+      "bblanchon/ArduinoJson": "^7.2.0"
     },
     "build": {
         "extraScript": "core_scripts/springbootplusplus_web_pre_build.py"
