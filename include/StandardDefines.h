@@ -57,6 +57,7 @@ using std::optional;
 #define Var auto
 #define Val const auto
 #define Const constexpr auto
+#define Optional std::optional
 
 #define Private public: private:
 #define Protected public: protected:
