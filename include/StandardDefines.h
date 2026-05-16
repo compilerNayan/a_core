@@ -29,6 +29,14 @@ typedef const unsigned long CULong;
 typedef unsigned long long ULongLong;
 typedef const unsigned long long CULongLong;
 typedef unsigned char UInt8;
+typedef int32_t Int32;
+typedef const int32_t CInt32;
+typedef uint32_t UInt32;
+typedef const uint32_t CUInt32;
+typedef int64_t Int64;
+typedef const int64_t CInt64;
+typedef uint64_t UInt64;
+typedef const uint64_t CUInt64;
 
 // Character types
 typedef char Char;
