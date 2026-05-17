@@ -156,6 +156,24 @@ except ImportError:
     def get_client_files(*args, **kwargs):
         return []
 
+def _resolve_project_dir(project_dir):
+    if project_dir:
+        return str(Path(project_dir).resolve())
+    for key in ("PROJECT_DIR", "CMAKE_PROJECT_DIR"):
+        value = os.environ.get(key)
+        if value:
+            return str(Path(value).resolve())
+    current = Path(os.getcwd()).resolve()
+    for _ in range(15):
+        if (current / "platformio.ini").is_file():
+            return str(current)
+        parent = current.parent
+        if parent == current:
+            break
+        current = parent
+    return None
+
+
 def execute_scripts(project_dir, library_dir, all_libs=None, library_scripts_dir=None):
     """
     Execute the scripts to process client files.
@@ -166,6 +184,8 @@ def execute_scripts(project_dir, library_dir, all_libs=None, library_scripts_dir
         all_libs: Dictionary with library directories (from get_all_library_dirs)
         library_scripts_dir: Path to the springbootplusplus_web_scripts directory (optional, will be derived from library_dir if not provided)
     """
+    project_dir = _resolve_project_dir(project_dir)
+
     global SECURITY_CONFIGURATION_ENTRIES
     SECURITY_CONFIGURATION_ENTRIES = []
 
@@ -222,11 +242,12 @@ def execute_scripts(project_dir, library_dir, all_libs=None, library_scripts_dir
         # Build include paths: project src directory + all library directories
         include_paths = []
 
-        # Add project src directory if it exists
+        # Add project src first (client controllers live here)
         if project_dir:
             project_src = Path(project_dir) / "src"
             if project_src.exists():
-                include_paths.append(str(project_src))
+                include_paths.insert(0, str(project_src.resolve()))
+            include_paths.insert(0, str(Path(project_dir).resolve()))
 
         # Add all library root directories (filter out arduinojson-src)
         for lib_root in all_libs['root_dirs']:
@@ -276,8 +297,8 @@ def execute_scripts(project_dir, library_dir, all_libs=None, library_scripts_dir
         
         # Run the command
         try:
-            result = subprocess.run(cmd, cwd=project_dir if project_dir else os.getcwd(), 
-                                  capture_output=False, text=True)
+            run_cwd = project_dir if project_dir else os.getcwd()
+            result = subprocess.run(cmd, cwd=run_cwd, capture_output=False, text=True)
             
             if result.returncode == 0:
                 # print("\n✅ L7 CPP Spring Boot Preprocessor completed successfully")

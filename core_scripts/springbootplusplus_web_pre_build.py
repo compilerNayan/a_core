@@ -107,12 +107,14 @@ def get_project_dir():
     Returns:
         str: Path to the project directory, or None if not found
     """
-    # Try PlatformIO environment first
+    # Try PlatformIO environment first (library env may omit PROJECT_DIR)
     project_dir = None
     if env:
         project_dir = env.get("PROJECT_DIR", None)
-    
-    # If not found, try CMake environment variable
+
+    if not project_dir:
+        project_dir = os.environ.get("PROJECT_DIR", None)
+
     if not project_dir:
         project_dir = os.environ.get("CMAKE_PROJECT_DIR", None)
     

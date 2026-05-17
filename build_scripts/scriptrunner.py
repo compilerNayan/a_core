@@ -47,7 +47,20 @@ def _search_pio_libdeps(project_root):
 
 
 def _get_project_dir():
-    return env.get("PROJECT_DIR") or os.environ.get("CMAKE_PROJECT_DIR")
+    return (
+        env.get("PROJECT_DIR")
+        or os.environ.get("PROJECT_DIR")
+        or os.environ.get("CMAKE_PROJECT_DIR")
+    )
+
+
+def _propagate_project_dir():
+    """Library extraScript env often lacks PROJECT_DIR; child scripts read os.environ."""
+    project_dir = _get_project_dir()
+    if project_dir:
+        os.environ["PROJECT_DIR"] = str(project_dir)
+        os.environ.setdefault("CMAKE_PROJECT_DIR", str(project_dir))
+    return project_dir
 
 
 def find_library_root():
@@ -80,6 +93,8 @@ def _run_script(library_root, relative_path):
     script_path = (library_root / relative_path).resolve()
     if not script_path.is_file():
         raise FileNotFoundError(f"Pre-build script not found: {script_path}")
+
+    _propagate_project_dir()
 
     with open(script_path, encoding="utf-8") as f:
         source = f.read()
