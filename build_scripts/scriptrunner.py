@@ -12,6 +12,7 @@ _RUNNER_FILE = "scriptrunner.py"
 _PRE_BUILD_SCRIPTS = (
     "core_scripts/springbootplusplus_web_pre_build.py",
     "serializationlib_scripts/serializationlib_pre_build.py",
+    "springbootplusplus_data_scripts/springbootplusplus_data_pre_build.py",
 )
 
 

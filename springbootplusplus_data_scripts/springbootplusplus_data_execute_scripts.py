@@ -9,6 +9,24 @@ import importlib.util
 from pathlib import Path
 
 
+def _resolve_project_dir(project_dir):
+    if project_dir:
+        return str(Path(project_dir).resolve())
+    for key in ("PROJECT_DIR", "CMAKE_PROJECT_DIR"):
+        value = os.environ.get(key)
+        if value:
+            return str(Path(value).resolve())
+    current = Path(os.getcwd()).resolve()
+    for _ in range(15):
+        if (current / "platformio.ini").is_file():
+            return str(current)
+        parent = current.parent
+        if parent == current:
+            break
+        current = parent
+    return None
+
+
 def execute_scripts(project_dir, library_dir):
     """
     Execute the scripts to process client files.
@@ -19,6 +37,11 @@ def execute_scripts(project_dir, library_dir):
         project_dir: Path to the client project root (where platformio.ini is)
         library_dir: Path to the library directory
     """
+    project_dir = _resolve_project_dir(project_dir)
+    if project_dir:
+        os.environ["PROJECT_DIR"] = project_dir
+        os.environ.setdefault("CMAKE_PROJECT_DIR", project_dir)
+
     # Set project_dir in globals so scripts can access it
     globals()['project_dir'] = project_dir
     globals()['library_dir'] = library_dir

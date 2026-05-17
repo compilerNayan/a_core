@@ -367,6 +367,11 @@ serializationlib_scripts_dir = find_library_scripts("serializationlib_scripts")
 if serializationlib_scripts_dir:
     sys.path.insert(0, str(serializationlib_scripts_dir))
 
+# Find and add springbootplusplus_data_scripts to Python path
+data_scripts_dir = find_library_scripts("springbootplusplus_data_scripts")
+if data_scripts_dir:
+    sys.path.insert(0, str(data_scripts_dir))
+
 # Get library root directory (parent of springbootplusplus_web_scripts)
 library_dir = library_scripts_dir.parent
 

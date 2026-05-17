@@ -102,7 +102,7 @@ def get_current_library_path(project_dir=None):
     """
     # Get project directory if not provided
     if project_dir is None:
-        project_dir = os.environ.get("CMAKE_PROJECT_DIR") or os.environ.get("PROJECT_DIR")
+        project_dir = os.environ.get("PROJECT_DIR") or os.environ.get("CMAKE_PROJECT_DIR")
     
     # First, try to get library scripts directory
     try:
@@ -142,8 +142,13 @@ def get_current_library_path(project_dir=None):
             for env_dir in pio_path.iterdir():
                 if env_dir.is_dir():
                     for lib_dir in env_dir.iterdir():
-                        if lib_dir.is_dir() and "springbootplusplus_data" in lib_dir.name.lower():
-                            # print(f"✓ Found springbootplusplus_data library path (PlatformIO): {lib_dir}")
+                        lib_name_lower = lib_dir.name.lower()
+                        if (
+                            "springbootplusplus_data" in lib_name_lower
+                            or lib_name_lower == "a_core"
+                            or (lib_dir / "springbootplusplus_data_scripts").is_dir()
+                        ):
+                            # print(f"✓ Found data library path (PlatformIO): {lib_dir}")
                             return lib_dir.resolve()
         
         parent = current.parent
@@ -305,7 +310,10 @@ def get_project_dir():
             # print(f"Note: Could not access PROJECT_DIR from env: {e}")
             pass
     
-    # If not found, try CMake environment variable
+    # Propagated by build_scripts/scriptrunner.py when nested Import("env") lacks PROJECT_DIR
+    if not project_dir:
+        project_dir = os.environ.get("PROJECT_DIR", None)
+
     if not project_dir:
         project_dir = os.environ.get("CMAKE_PROJECT_DIR", None)
         if project_dir:
