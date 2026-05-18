@@ -206,10 +206,6 @@ class IHttpRequest {
      */
     Public Virtual CStdString& GetRequestId() const = 0;
     
-    /**
-     * Get the source of the request (LocalServer or CloudServer).
-     */
-    Public Virtual RequestSource GetRequestSource() const = 0;
     
     // ========== Static Factory Method ==========
     
@@ -220,18 +216,18 @@ class IHttpRequest {
      * @param rawRequest The raw HTTP request string from IServer::ReceiveMessage()
      * @return IHttpRequestPtr (shared_ptr), or nullptr if parsing fails
      */
-    Static inline IHttpRequestPtr GetRequest(CStdString& requestId, RequestSource source, CStdString& rawRequest);
+    Static inline IHttpRequestPtr GetRequest(const MqttMessage& message);
 };
 
 // Include SimpleHttpRequest for inline implementation
 #include "SimpleHttpRequest.h"
 
 // Inline implementation
-inline IHttpRequestPtr IHttpRequest::GetRequest(CStdString& requestId, RequestSource source, CStdString& rawRequest) {
-    if (rawRequest.empty()) {
+inline IHttpRequestPtr IHttpRequest::GetRequest(CStdString& requestId, CStdString& rawRequest) {
+    if(rawRequest.empty()) {
         return nullptr;
     }
-    return make_ptr<SimpleHttpRequest>(requestId, source, rawRequest);
+    return make_ptr<SimpleHttpRequest>(requestId, rawRequest);
 }
 
 #endif // IHTTPREQUEST_H
