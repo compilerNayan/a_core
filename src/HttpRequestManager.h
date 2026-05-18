@@ -5,9 +5,9 @@
 #include "IHttpRequestQueue.h"
 #include "IHttpRequestProcessor.h"
 #include "IHttpResponseProcessor.h"
-#include <ServerProvider.h>
-#include <IThreadPool.h>
-#include <ILogger.h>
+#include "communication/ServerProvider.h"
+#include "logger/ILogger.h"
+#include "Thread.h"
 
 /* @Component */
 class HttpRequestManager final : public IHttpRequestManager {
@@ -22,17 +22,14 @@ class HttpRequestManager final : public IHttpRequestManager {
     Private IHttpResponseProcessorPtr responseProcessor;
 
     /* @Autowired */
-    Private IThreadPoolPtr threadPool;
-
-    /* @Autowired */
     Private ILoggerPtr logger;
 
-    Private IServerPtr server;
-    Private IServerPtr secondServer;
+    Private IServerPtr localServer;
+    Private IServerPtr cloudServer;
 
     Public HttpRequestManager() {
-        server = ServerProvider::GetDefaultServer();
-        secondServer = ServerProvider::GetSecondServer();
+        localServer = ServerProvider::GetLocalServer();
+        cloudServer = ServerProvider::GetCloudServer();
     }
     
     Public ~HttpRequestManager() override = default;
@@ -41,36 +38,31 @@ class HttpRequestManager final : public IHttpRequestManager {
     // HTTP Request Management Operations
     // ============================================================================
     
-    Private Void RetrieveRequestFromPrimaryServer() {
-        if (server == nullptr) return;
-        IHttpRequestPtr request = server->ReceiveMessage();
+    Private Void RetrieveRequestFromLocalServer() {
+        if (localServer == nullptr) return;
+        IHttpRequestPtr request = localServer->ReceiveMessage();
         if (request != nullptr) {
-            logger->Info(Tag::Untagged, StdString("Received request from primary server"));
+            logger->Info(Tag::Untagged, StdString("Received request from local server"));
             requestQueue->EnqueueRequest(request);
         }
     }
 
-    Private Void RetrieveRequestFromSecondaryServer() {
-        if (secondServer == nullptr) return;
-        IHttpRequestPtr request = secondServer->ReceiveMessage();
+    Private Void RetrieveRequestFromCloudServer() {
+        if (cloudServer == nullptr) return;
+        IHttpRequestPtr request = cloudServer->ReceiveMessage();
         if (request != nullptr) {
-            logger->Info(Tag::Untagged, StdString("Received request from secondary server"));
+            logger->Info(Tag::Untagged, StdString("Received request from cloud server"));
             requestQueue->EnqueueRequest(request);
         }
     }
 
     Public Bool RetrieveRequest() override {
-        //threadPool->Submit([this]() {
-            RetrieveRequestFromPrimaryServer();
-        //});
-
-        //threadPool->Submit([this]() {
-            RetrieveRequestFromSecondaryServer();
-        //});
+        RetrieveRequestFromLocalServer();
+        RetrieveRequestFromCloudServer();
 
         ProcessRequest();
         ProcessResponse();
-        delay(1000);
+        Thread::Sleep(1000);
         return true;
     }
     
@@ -110,22 +102,22 @@ class HttpRequestManager final : public IHttpRequestManager {
     }
     
     Public Bool StartServer(CUInt port = DEFAULT_SERVER_PORT) override {
-        if (server == nullptr) {
+        if (localServer == nullptr) {
             return false;
         }
-        Bool result = server->Start(port);
-        if (result && secondServer != nullptr) {
-            secondServer->Start(port);
+        Bool result = localServer->Start();
+        if (result && cloudServer != nullptr) {
+            cloudServer->Start();
         }
         return result;
     }
     
     Public Void StopServer() override {
-        if (server != nullptr) {
-            server->Stop();
+        if (localServer != nullptr) {
+            localServer->Stop();
         }
-        if (secondServer != nullptr) {
-            secondServer->Stop();
+        if (cloudServer != nullptr) {
+            cloudServer->Stop();
         }
     }
 };
