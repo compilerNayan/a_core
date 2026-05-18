@@ -38,7 +38,7 @@ class IHttpRequestManager {
      * @param port Port number to listen on (default: DEFAULT_SERVER_PORT)
      * @return true if server started successfully, false otherwise
      */
-    Public Virtual Bool StartServer(CUInt port = DEFAULT_SERVER_PORT) = 0;
+    Public Virtual Bool StartServer() = 0;
     
     /**
      * @brief Stops the server

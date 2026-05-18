@@ -2,7 +2,7 @@
 #define ISERVER_H
 
 #include <StandardDefines.h>
-]
+
 // Forward declaration and pointer types
 DefineStandardPointers(IHttpRequest)
 

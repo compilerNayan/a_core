@@ -12,10 +12,11 @@ class HttpResponseProcessor final : public IHttpResponseProcessor {
     /* @Autowired */
     Private IHttpResponseQueuePtr responseQueue;
 
-    Private IServerPtr server;
+    Private IServerPtr localServer;
+    Private IServerPtr cloudServer;
 
     Public HttpResponseProcessor() 
-        : server(ServerProvider::GetSecondServer()) {
+        : localServer(ServerProvider::GetLocalServer()), cloudServer(ServerProvider::GetCloudServer()) {
     }
     
     Public ~HttpResponseProcessor() override = default;
@@ -34,7 +35,11 @@ class HttpResponseProcessor final : public IHttpResponseProcessor {
             return false;
         }
         
-        if (server == nullptr) {
+        if (localServer == nullptr) {
+            return false;
+        }
+
+        if (cloudServer == nullptr) {
             return false;
         }
         
@@ -51,7 +56,8 @@ class HttpResponseProcessor final : public IHttpResponseProcessor {
         }
         
         // Send response using server
-        server->SendMessage(requestId, responseString);
+        localServer->SendMessage(requestId, responseString);
+        cloudServer->SendMessage(requestId, responseString);
         return false;
     }
 };

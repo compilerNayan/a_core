@@ -101,7 +101,7 @@ class HttpRequestManager final : public IHttpRequestManager {
         return processedAny;
     }
     
-    Public Bool StartServer(CUInt port = DEFAULT_SERVER_PORT) override {
+    Public Bool StartServer() override {
         if (localServer == nullptr) {
             return false;
         }

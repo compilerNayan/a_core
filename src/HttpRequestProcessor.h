@@ -5,7 +5,7 @@
 #include "IHttpRequestQueue.h"
 #include "IHttpRequestDispatcher.h"
 #include "IHttpResponseQueue.h"
-#include <IHttpResponse.h>
+#include <communication/IHttpResponse.h>
 
 /* @Component */
 class HttpRequestProcessor final : public IHttpRequestProcessor {
