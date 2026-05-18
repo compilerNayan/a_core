@@ -1,10 +1,9 @@
 #ifndef SERVERPROVIDER_H
 #define SERVERPROVIDER_H
 
-#include "IServer.h"
 #include <StandardDefines.h>
-#include <functional>
-#include <memory>
+#include "ILocalServer.h"
+#include "ICloudServer.h"
 
 /**
  * Provider class for managing server instances
@@ -13,11 +12,15 @@
 class ServerProvider {
 
     Public Static IServerPtr GetLocalServer() {
-        return nullptr;
+        /* @Autowired */
+        ILocalServerPtr localServer;
+        return localServer;
     }
 
     Public Static IServerPtr GetCloudServer() {
-        return nullptr;
+        /* @Autowired */
+        ICloudServerPtr cloudServer;
+        return cloudServer;
     }
     
 };
