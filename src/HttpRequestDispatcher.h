@@ -17,16 +17,6 @@
 #include "auth/PrimaryAuthorizationFilter.h"
 #include "auth/ISecurityConfigRegistry.h"
 
-#ifdef ARDUINO
-    #include <Arduino.h>
-    #define std_print(x) Serial.print(x)
-    #define std_println(x) Serial.println(x)
-#else
-    #include <iostream>
-    #define std_print(x) std::cout << x
-    #define std_println(x) std::cout << x << std::endl
-#endif
-
 #include "IHttpRequestDispatcher.h"
 #include <IHttpResponse.h>
 #include "ResponseEntityToHttpResponse.h"
