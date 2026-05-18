@@ -56,7 +56,7 @@ class HttpRequestManager final : public IHttpRequestManager {
         }
     }
 
-    Public Bool RetrieveRequest() override {
+    Public Bool HandleRequest() override {
         RetrieveRequestFromLocalServer();
         RetrieveRequestFromCloudServer();
 
@@ -66,7 +66,7 @@ class HttpRequestManager final : public IHttpRequestManager {
         return true;
     }
     
-    Public Bool ProcessRequest() override {
+    Private Bool ProcessRequest() override {
         if (requestProcessor == nullptr) {
             return false;
         }
@@ -83,7 +83,7 @@ class HttpRequestManager final : public IHttpRequestManager {
         return processedAny;
     }
     
-    Public Bool ProcessResponse() override {
+    Private Bool ProcessResponse() override {
         if (responseProcessor == nullptr) {
             return false;
         }
@@ -99,26 +99,6 @@ class HttpRequestManager final : public IHttpRequestManager {
         }
         
         return processedAny;
-    }
-    
-    Public Bool StartServer() override {
-        if (localServer == nullptr) {
-            return false;
-        }
-        Bool result = localServer->Start();
-        if (result && cloudServer != nullptr) {
-            cloudServer->Start();
-        }
-        return result;
-    }
-    
-    Public Void StopServer() override {
-        if (localServer != nullptr) {
-            localServer->Stop();
-        }
-        if (cloudServer != nullptr) {
-            cloudServer->Stop();
-        }
     }
 };
 
