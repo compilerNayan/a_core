@@ -66,7 +66,7 @@ class HttpRequestManager final : public IHttpRequestManager {
         return true;
     }
     
-    Private Bool ProcessRequest() override {
+    Private Bool ProcessRequest() {
         if (requestProcessor == nullptr) {
             return false;
         }
@@ -83,7 +83,7 @@ class HttpRequestManager final : public IHttpRequestManager {
         return processedAny;
     }
     
-    Private Bool ProcessResponse() override {
+    Private Bool ProcessResponse() {
         if (responseProcessor == nullptr) {
             return false;
         }
