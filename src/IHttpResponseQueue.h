@@ -2,7 +2,7 @@
 #define I_HTTP_RESPONSE_QUEUE_H
 
 #include <StandardDefines.h>
-#include <IHttpResponse.h>
+#include <communication/IHttpResponse.h>
 
 // Forward declarations
 DefineStandardPointers(IHttpResponseQueue)

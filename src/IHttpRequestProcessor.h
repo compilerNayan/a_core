@@ -2,7 +2,7 @@
 #define I_HTTP_REQUEST_PROCESSOR_H
 
 #include <StandardDefines.h>
-#include <IHttpRequest.h>
+#include <communication/IHttpRequest.h>
 
 // Forward declarations
 DefineStandardPointers(IHttpRequestProcessor)

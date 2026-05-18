@@ -16,7 +16,7 @@ class EndpointSecurityValidator : public IEndpointSecurityValidator {
 
     Public ~EndpointSecurityValidator() override = default;
 
-    Public NoDiscard std::pair<Bool, optional<ResponseEntity<StdString>>> IsAllowed(
+    Public std::pair<Bool, optional<ResponseEntity<StdString>>> IsAllowed(
         CStdString& url, HttpMethod method, const JwtAuthenticationToken& token) const override {
         if (!endpointSecurityConfig) {
             return {

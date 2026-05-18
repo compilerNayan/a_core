@@ -2,7 +2,7 @@
 #define I_ENDPOINT_SECURITY_VALIDATOR_H
 
 #include <StandardDefines.h>
-#include <HttpMethod.h>
+#include <communication/HttpMethod.h>
 
 #include "../ResponseEntity.h"
 #include "JwtAuthenticationToken.h"
@@ -13,7 +13,7 @@ class IEndpointSecurityValidator {
 
     Public Virtual ~IEndpointSecurityValidator() = default;
 
-    Public Virtual NoDiscard std::pair<Bool, optional<ResponseEntity<StdString>>> IsAllowed(
+    Public Virtual std::pair<Bool, optional<ResponseEntity<StdString>>> IsAllowed(
         CStdString& url, HttpMethod method, const JwtAuthenticationToken& token) const = 0;
 };
 

@@ -2,7 +2,7 @@
 #define ENDPOINT_SECURITY_CONFIG_H
 
 #include <StandardDefines.h>
-#include <HttpMethod.h>
+#include <communication/HttpMethod.h>
 #include <mutex>
 
 #include "IEndpointSecurityRuleManager.h"
@@ -39,7 +39,7 @@ class EndpointSecurityConfig : public IEndpointSecurityRuleManager {
         rules[StdString(url)][method] = authorizer;
     }
 
-    Protected NoDiscard std::pair<Bool, optional<ResponseEntity<StdString>>> IsAllowed(
+    Protected std::pair<Bool, optional<ResponseEntity<StdString>>> IsAllowed(
         CStdString& url, HttpMethod method, const JwtAuthenticationToken& token) const override {
         std::lock_guard<std::mutex> lock(rulesMutex);
         Val pathIt = rules.find(StdString(url));

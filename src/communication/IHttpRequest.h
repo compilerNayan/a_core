@@ -216,7 +216,7 @@ class IHttpRequest {
      * @param rawRequest The raw HTTP request string from IServer::ReceiveMessage()
      * @return IHttpRequestPtr (shared_ptr), or nullptr if parsing fails
      */
-    Static inline IHttpRequestPtr GetRequest(const MqttMessage& message);
+    Static inline IHttpRequestPtr GetRequest(CStdString& requestId, CStdString& rawRequest);
 };
 
 // Include SimpleHttpRequest for inline implementation

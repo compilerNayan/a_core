@@ -18,7 +18,7 @@
 #include "auth/ISecurityConfigRegistry.h"
 
 #include "IHttpRequestDispatcher.h"
-#include <IHttpResponse.h>
+#include <communication/IHttpResponse.h>
 #include "ResponseEntityToHttpResponse.h"
 
 /* @Component */

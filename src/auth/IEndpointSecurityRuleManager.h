@@ -3,7 +3,7 @@
 
 #include <StandardDefines.h>
 #include <functional>
-#include <HttpMethod.h>
+#include <communication/HttpMethod.h>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -20,7 +20,7 @@ class IEndpointSecurityRuleManager {
 
     friend class EndpointSecurityValidator;
 
-    Protected Virtual NoDiscard std::pair<Bool, optional<ResponseEntity<StdString>>> IsAllowed(
+    Protected Virtual std::pair<Bool, optional<ResponseEntity<StdString>>> IsAllowed(
         CStdString& url, HttpMethod method, const JwtAuthenticationToken& token) const = 0;
 
     /**

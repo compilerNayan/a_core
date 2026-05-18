@@ -8,16 +8,9 @@
 #include <ctime>
 #include <ArduinoJson.h>
 
-#ifdef ARDUINO
-  #include <Arduino.h>
-  #include <mbedtls/pk.h>
-  #include <mbedtls/md.h>
-#else
-  #include <iostream>
-  #include <openssl/pem.h>
-  #include <openssl/evp.h>
-  #include <openssl/bio.h>
-#endif
+#include "mbedtls/pk.h"
+#include "mbedtls/md.h"
+// #include "esp_log.h"
 
 #include "JwtAuthenticationToken.h"
 #include "IJwtAuthenticator.h"
@@ -76,15 +69,22 @@ UwIDAQAB
         return parts;
     }
 
-    // Arduino-specific signature verification
-    bool verifySignatureArduino(const std::string& headerPayload,
-                                const std::string& signature) {
-#ifdef ARDUINO
+    // Unified signature verification entry point
+    bool verifySignature(const std::string& headerPayload,
+                         const std::string& signatureB64) {
+        std::string signature = base64UrlDecode(signatureB64);
+        return verifySignatureEspIdf(headerPayload, signature);
+    }
+
+    // ESP-IDF signature verification (mbedTLS)
+    bool verifySignatureEspIdf(const std::string& headerPayload,
+                               const std::string& signature) {
         mbedtls_pk_context pk;
         mbedtls_pk_init(&pk);
         if (mbedtls_pk_parse_public_key(&pk,
             (const unsigned char*)publicKeyPem,
             strlen(publicKeyPem) + 1) != 0) {
+            //ESP_LOGE(TAG, "Failed to parse public key");
             return false;
         }
 
@@ -99,53 +99,6 @@ UwIDAQAB
                                     signature.size());
         mbedtls_pk_free(&pk);
         return ret == 0;
-#else
-        return false;
-#endif
-    }
-
-    // Desktop-specific signature verification
-    bool verifySignatureDesktop(const std::string& headerPayload,
-                                const std::string& signature) {
-#ifndef ARDUINO
-        BIO* bio = BIO_new_mem_buf(publicKeyPem, -1);
-        EVP_PKEY* pubKey = PEM_read_bio_PUBKEY(bio, NULL, NULL, NULL);
-        BIO_free(bio);
-
-        EVP_MD_CTX* ctx = EVP_MD_CTX_new();
-        EVP_DigestVerifyInit(ctx, NULL, EVP_sha256(), NULL, pubKey);
-        int ret = EVP_DigestVerify(ctx,
-                                   (const unsigned char*)signature.data(),
-                                   signature.size(),
-                                   (const unsigned char*)headerPayload.data(),
-                                   headerPayload.size());
-        EVP_MD_CTX_free(ctx);
-        EVP_PKEY_free(pubKey);
-        return ret == 1;
-#else
-        return false;
-#endif
-    }
-
-    // Unified signature verification entry point
-    bool verifySignature(const std::string& headerPayload,
-                         const std::string& signatureB64) {
-        std::string signature = base64UrlDecode(signatureB64);
-
-#ifdef ARDUINO
-        return verifySignatureArduino(headerPayload, signature);
-#else
-        return verifySignatureDesktop(headerPayload, signature);
-#endif
-    }
-
-    // Generic print method
-    void printMessage(const std::string& msg) {
-#ifdef ARDUINO
-        Serial.println(msg.c_str());
-#else
-        std::cout << msg << std::endl;
-#endif
     }
 
     bool parseInt64Claim(const JsonVariantConst& value, long long& out) {
