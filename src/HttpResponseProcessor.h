@@ -3,8 +3,8 @@
 
 #include "IHttpResponseProcessor.h"
 #include "IHttpResponseQueue.h"
-#include <ServerProvider.h>
-#include <IHttpResponse.h>
+#include <communication/ServerProvider.h>
+#include <communication/IHttpResponse.h>
 
 /* @Component */
 class HttpResponseProcessor final : public IHttpResponseProcessor {
