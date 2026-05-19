@@ -4,7 +4,9 @@ PlatformIO extraScript entry point: runs a_core pre-build scripts in order.
 
 Import("env")
 
+import hashlib
 import os
+import sys
 from pathlib import Path
 
 _RUNNER_DIR_NAME = "build_scripts"
@@ -14,6 +16,12 @@ _PRE_BUILD_SCRIPTS = (
     "serializationlib_scripts/serializationlib_pre_build.py",
     "springbootplusplus_data_scripts/springbootplusplus_data_pre_build.py",
 )
+
+# Stamp file lives in the consuming project (next to `src/`), NOT inside the
+# library, so each project tracks its own pre-build state and library updates
+# do not pollute the library tree.
+_STAMP_DIR_NAME = "generated"
+_STAMP_FILE_NAME = ".a_core_prebuild.stamp"
 
 
 def _is_library_root(path):
@@ -110,7 +118,63 @@ def _run_script(library_root, relative_path):
     exec(compile(source, str(script_path), "exec"), script_globals)
 
 
-library_root = find_library_root()
+def _compute_scripts_fingerprint(library_root):
+    """SHA-256 over (relative_path, file_contents) of every pre-build script.
 
-for relative_script in _PRE_BUILD_SCRIPTS:
-    _run_script(library_root, relative_script)
+    If any script is edited, added, removed or reordered the digest changes,
+    which forces a re-run on the next build. This is the same idea as
+    Make/Ninja/CMake stamp files.
+    """
+    hasher = hashlib.sha256()
+    for relative_script in _PRE_BUILD_SCRIPTS:
+        script_path = (library_root / relative_script).resolve()
+        hasher.update(relative_script.encode("utf-8"))
+        hasher.update(b"\0")
+        with open(script_path, "rb") as f:
+            hasher.update(f.read())
+        hasher.update(b"\0")
+    return hasher.hexdigest()
+
+
+def _get_stamp_path():
+    project_dir = _get_project_dir()
+    if not project_dir:
+        return None
+    return Path(project_dir) / _STAMP_DIR_NAME / _STAMP_FILE_NAME
+
+
+def _read_stamp(stamp_path):
+    try:
+        return stamp_path.read_text(encoding="utf-8").strip()
+    except (OSError, UnicodeDecodeError):
+        return None
+
+
+def _write_stamp(stamp_path, fingerprint):
+    stamp_path.parent.mkdir(parents=True, exist_ok=True)
+    # Keep the `generated/` folder out of version control by default.
+    gitignore = stamp_path.parent / ".gitignore"
+    if not gitignore.exists():
+        gitignore.write_text("*\n", encoding="utf-8")
+    stamp_path.write_text(fingerprint + "\n", encoding="utf-8")
+
+
+def _log(message):
+    sys.stdout.write(f"[a_core scriptrunner] {message}\n")
+    sys.stdout.flush()
+
+
+library_root = find_library_root()
+stamp_path = _get_stamp_path()
+fingerprint = _compute_scripts_fingerprint(library_root)
+
+if stamp_path is not None and _read_stamp(stamp_path) == fingerprint:
+    _log(f"pre-build scripts already up to date (stamp: {stamp_path}); skipping.")
+else:
+    for relative_script in _PRE_BUILD_SCRIPTS:
+        _run_script(library_root, relative_script)
+    if stamp_path is not None:
+        _write_stamp(stamp_path, fingerprint)
+        _log(f"pre-build scripts completed; stamp written to {stamp_path}.")
+    else:
+        _log("PROJECT_DIR not resolved; ran pre-build scripts without writing stamp.")
