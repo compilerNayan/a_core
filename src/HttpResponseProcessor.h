@@ -3,7 +3,7 @@
 
 #include "IHttpResponseProcessor.h"
 #include "IHttpResponseQueue.h"
-#include <communication/ServerProvider.h>
+#include <communication/IServerProvider.h>
 #include <communication/IHttpResponse.h>
 
 /* @Component */
@@ -15,8 +15,11 @@ class HttpResponseProcessor final : public IHttpResponseProcessor {
     Private IServerPtr localServer;
     Private IServerPtr cloudServer;
 
+    /* @Autowired */
+    Private IServerProviderPtr serverProvider;
+
     Public HttpResponseProcessor() 
-        : localServer(ServerProvider::GetLocalServer()), cloudServer(ServerProvider::GetCloudServer()) {
+        : localServer(serverProvider->GetLocalServer()), cloudServer(serverProvider->GetCloudServer()) {
     }
     
     Public ~HttpResponseProcessor() override = default;

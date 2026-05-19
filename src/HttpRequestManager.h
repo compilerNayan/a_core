@@ -5,7 +5,7 @@
 #include "IHttpRequestQueue.h"
 #include "IHttpRequestProcessor.h"
 #include "IHttpResponseProcessor.h"
-#include "communication/ServerProvider.h"
+#include "communication/IServerProvider.h"
 #include "logger/ILogger.h"
 #include "Thread.h"
 
@@ -27,9 +27,12 @@ class HttpRequestManager final : public IHttpRequestManager {
     Private IServerPtr localServer;
     Private IServerPtr cloudServer;
 
+    /* @Autowired */
+    Private IServerProviderPtr serverProvider;
+
     Public HttpRequestManager() {
-        localServer = ServerProvider::GetLocalServer();
-        cloudServer = ServerProvider::GetCloudServer();
+        localServer = serverProvider->GetLocalServer();
+        cloudServer = serverProvider->GetCloudServer();
     }
     
     Public ~HttpRequestManager() override = default;
