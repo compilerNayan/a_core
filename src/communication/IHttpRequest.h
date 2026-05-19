@@ -3,6 +3,7 @@
 
 #include <StandardDefines.h>
 #include "HttpMethod.h"
+#include "RequestSource.h"
 
 /**
  * Interface representing a complete HTTP request
@@ -206,7 +207,11 @@ class IHttpRequest {
      */
     Public Virtual CStdString& GetRequestId() const = 0;
     
-    
+    /**
+     * Get the request source
+     */
+    Public Virtual RequestSource GetSource() const = 0;
+
     // ========== Static Factory Method ==========
     
     /**
@@ -216,18 +221,18 @@ class IHttpRequest {
      * @param rawRequest The raw HTTP request string from IServer::ReceiveMessage()
      * @return IHttpRequestPtr (shared_ptr), or nullptr if parsing fails
      */
-    Static inline IHttpRequestPtr GetRequest(CStdString& requestId, CStdString& rawRequest);
+    Static inline IHttpRequestPtr GetRequest(CStdString& requestId, RequestSource source, CStdString& rawRequest);
 };
 
 // Include SimpleHttpRequest for inline implementation
 #include "SimpleHttpRequest.h"
 
 // Inline implementation
-inline IHttpRequestPtr IHttpRequest::GetRequest(CStdString& requestId, CStdString& rawRequest) {
+inline IHttpRequestPtr IHttpRequest::GetRequest(CStdString& requestId, RequestSource source, CStdString& rawRequest) {
     if(rawRequest.empty()) {
         return nullptr;
     }
-    return make_ptr<SimpleHttpRequest>(requestId, rawRequest);
+    return make_ptr<SimpleHttpRequest>(requestId, source, rawRequest);
 }
 
 #endif // IHTTPREQUEST_H

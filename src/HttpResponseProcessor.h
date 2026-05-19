@@ -55,9 +55,14 @@ class HttpResponseProcessor final : public IHttpResponseProcessor {
             return false;
         }
         
-        // Send response using server
-        localServer->SendMessage(requestId, responseString);
-        cloudServer->SendMessage(requestId, responseString);
+        switch (response->GetSource()) {
+            case RequestSource::LocalServer:
+                localServer->SendMessage(requestId, responseString);
+                break;
+            case RequestSource::CloudServer:
+                cloudServer->SendMessage(requestId, responseString);
+                break;
+        }
         return false;
     }
 };

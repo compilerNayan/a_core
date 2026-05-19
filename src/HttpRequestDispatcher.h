@@ -143,6 +143,10 @@ class HttpRequestDispatcher : public IHttpRequestDispatcher {
             if (response != nullptr && !requestId.empty() && response->GetRequestId().empty()) {
                 response->SetRequestId(requestId);
             }
+
+            if(response != nullptr) {
+                response->SetSource(request->GetSource());
+            }
             
             return response;
     

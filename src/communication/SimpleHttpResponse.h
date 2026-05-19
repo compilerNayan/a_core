@@ -26,7 +26,7 @@ class SimpleHttpResponse : public IHttpResponse {
     Private ULong timestamp_;
     Private StdString rawResponse_;
     Private StdString requestId_;
-    
+    Private RequestSource source_;
     Private StdString ToLower(CStdString& str) const {
         StdString result = str;
         std::transform(result.begin(), result.end(), result.begin(), ::tolower);
@@ -53,10 +53,11 @@ class SimpleHttpResponse : public IHttpResponse {
         }
     }
 
-    Public SimpleHttpResponse(CStdString& requestId, CStdString& body) 
+    Public SimpleHttpResponse(CStdString& requestId, RequestSource source, CStdString& body) 
         : httpVersion_("HTTP/1.1"), statusCode_(200), statusMessage_("OK"), timestamp_(0) {
         requestId_ = requestId;
         body_ = body;
+        source_ = source;
         timestamp_ = static_cast<ULong>(std::time(nullptr));
         
         // Convert body to bytes
@@ -320,6 +321,10 @@ class SimpleHttpResponse : public IHttpResponse {
     
     Public Virtual CStdString& GetRequestId() const override {
         return const_cast<CStdString&>(reinterpret_cast<const CStdString&>(requestId_));
+    }
+    
+    Public Virtual RequestSource GetSource() const override {
+        return source_;
     }
     
     // Setters for customization
