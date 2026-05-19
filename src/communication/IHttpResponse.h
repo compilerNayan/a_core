@@ -239,6 +239,11 @@ class IHttpResponse {
      */
     Public Virtual RequestSource GetSource() const = 0;
 
+    /**
+     * Set the request source
+     */
+    Public Virtual Void SetSource(RequestSource source) = 0;
+
     // ========== Static Factory Method ==========
     
     /**

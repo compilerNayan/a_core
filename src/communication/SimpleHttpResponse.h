@@ -351,6 +351,10 @@ class SimpleHttpResponse : public IHttpResponse {
     Public Virtual Void SetRequestId(CStdString& requestId) override {
         requestId_ = StdString(requestId);
     }
+
+    Public Virtual Void SetSource(RequestSource source) override {
+        source_ = source;
+    }
 };
 
 #endif // SIMPLEHTTPRESPONSE_H
