@@ -158,6 +158,7 @@ class HttpRequestDispatcher : public IHttpRequestDispatcher {
             IHttpResponsePtr response = ResponseEntityConverter::ToHttpResponse<StdString>(errorResponse);
             if (response != nullptr && !requestId.empty()) {
                 response->SetRequestId(requestId);
+                response->SetSource(request->GetSource());
             }
             return response;
         } catch (...) {
@@ -167,6 +168,7 @@ class HttpRequestDispatcher : public IHttpRequestDispatcher {
             IHttpResponsePtr response = ResponseEntityConverter::ToHttpResponse<StdString>(errorResponse);
             if (response != nullptr && !requestId.empty()) {
                 response->SetRequestId(requestId);
+                response->SetSource(request->GetSource());
             }
             return response;
         }
