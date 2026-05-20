@@ -18,9 +18,10 @@ class HttpResponseProcessor final : public IHttpResponseProcessor {
     /* @Autowired */
     Private IServerProviderPtr serverProvider;
 
-    Public HttpResponseProcessor() 
-        : localServer(serverProvider->GetLocalServer()), cloudServer(serverProvider->GetCloudServer()) {
-    }
+    Public HttpResponseProcessor() {
+        localServer = serverProvider->GetLocalServer();
+        cloudServer = serverProvider->GetCloudServer();
+    } 
     
     Public ~HttpResponseProcessor() override = default;
 
