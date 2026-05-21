@@ -92,23 +92,19 @@ public:
      */
     template<typename ReturnType>
     static remove_cvref_t<ReturnType> Deserialize(const StdString& input) {
-        printf("Deserialize1\n");
         if constexpr (is_optional_type_v<ReturnType>) {
             // Handle optional types (optional<T> or std::optional<T>)
             using ValueType = typename ReturnType::value_type;
-            printf("Deserialize2\n");
             // Check if input is null or empty
             if (input.empty() || input == "null" || input == "{}") {
                 return ReturnType(); // Return empty optional
             }
-            printf("Deserialize3\n");
             // Try to parse as JSON to check if it's null
             JsonDocument doc;
             DeserializationError error = deserializeJson(doc, input.c_str());
             if (error == DeserializationError::Ok && doc.isNull()) {
                 return ReturnType(); // Return empty optional
             }
-            printf("Deserialize4\n");
             // If parsing succeeded, extract the value from JSON
             ValueType value;
             if (error == DeserializationError::Ok) {
@@ -144,19 +140,15 @@ public:
                 // If JSON parsing failed, try direct deserialization
                 value = Deserialize<ValueType>(input);
             }
-            printf("Deserialize5\n");
             return ReturnType(value);
         } else if constexpr (is_primitive_type_v<ReturnType>) {
             // Convert string to primitive type
-            printf("Deserialize6\n");
             return convert_string_to_primitive<remove_cvref_t<ReturnType>>(input);
         } else if constexpr (is_sequential_container_v<ReturnType>) {
             // Handle sequential containers (vector, list, deque, set, unordered_set, etc.)
-            printf("Deserialize7\n");
             return deserialize_sequential_container<ReturnType>(input);
         } else if constexpr (is_associative_container_v<ReturnType>) {
             // Handle associative containers (StdMap, StdUnorderedMap)
-            printf("Deserialize8\n");
             return deserialize_associative_container<ReturnType>(input);
         } else if constexpr (std::is_enum_v<ReturnType>) {
             // Handle enum types - template specialization should be provided by S8_handle_enum_serialization.py
@@ -164,14 +156,11 @@ public:
             // We can't call ReturnType::Deserialize() because enums don't have that method
             // The specialization must exist for enums to work
             // Use a dependent static_assert that only fails when ReturnType is an enum
-            printf("Deserialize9.1\n");
             static_assert(std::is_enum_v<ReturnType> && false, "Enum deserialization specialization not found. Run S8_handle_enum_serialization.py for this enum.");
             return ReturnType(); // This line will never be reached due to static_assert
         } else {
-            printf("Deserialize10\n");
             // Call the type's Deserialize method (use value type for reference types like const T&)
             using ValueType = remove_cvref_t<ReturnType>;
-            printf("Deserialize9\n");
             return ValueType::Deserialize(input);
         }
     }
