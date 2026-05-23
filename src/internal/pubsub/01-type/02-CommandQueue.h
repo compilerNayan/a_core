@@ -8,7 +8,7 @@ DefineStandardPointers(CommandQueue)
 class CommandQueue {
     
     Private StdQueue<Command> queue_;
-    Private std::mutex mutex_;
+    Private mutable std::mutex mutex_;
     
     Public Void Push(const Command& cmd) {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -21,6 +21,11 @@ class CommandQueue {
         Command cmd = queue_.front();
         queue_.pop();
         return cmd;
+    }
+
+    Public Bool IsEmpty() const {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return queue_.empty();
     }
 };
     

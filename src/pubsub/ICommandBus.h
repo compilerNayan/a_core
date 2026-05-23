@@ -1,6 +1,6 @@
 #ifndef ICOMMANDBUS_EXPORT_H
 #define ICOMMANDBUS_EXPORT_H
 
-#include "internal/02-interface/01-ICommandBus.h"
+#include "internal/pubsub/02-interface/01-ICommandBus.h"
     
 #endif // ICOMMANDBUS_EXPORT_H

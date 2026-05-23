@@ -7,6 +7,7 @@
 class Subscription {
     Private CommandQueuePtr queue_;
     
+    Public Subscription() = default;
     Public Explicit Subscription(CommandQueuePtr q) : queue_(q) {}
     Public Virtual ~Subscription() = default;
 

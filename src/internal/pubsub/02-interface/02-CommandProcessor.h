@@ -9,31 +9,28 @@ class CommandProcessor {
     Private ICommandBusPtr bus_;
 
     Private StdString topic_;
-    Private SubscriptionPtr subscription_;
+    Private Subscription subscription_;
     Private Bool running_ = false;
 
-    Public Virtual ~CommandProcessor() = default;
     Public Virtual Void OnCommandReceived(const Command& cmd) = 0;
 
     Public CommandProcessor(CStdString topic) : topic_(topic) {
         subscription_ = bus_->Subscribe(topic);
     }
 
-    virtual ~CommandProcessor() {
+    Virtual ~CommandProcessor() {
         Stop();
     }
 
-    void Stop() { running_ = false; }
+    Void Stop() { running_ = false; }
 
     Public CStdString GetTopic() const { return topic_; }
 
     Public Void ProcessCommands() {
-        while (running_) {
-            if (subscription_->HasCommands()) {
-                auto cmd = subscription_->Pull();
-                if(cmd.has_value()) { 
-                    ProcessCommand(cmd);
-                }
+        if (subscription_.HasCommands()) {
+            auto cmd = subscription_.Pull();
+            if(cmd.has_value()) { 
+                OnCommandReceived(cmd.value());
             }
         }
     }
