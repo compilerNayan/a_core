@@ -206,6 +206,16 @@ class CpaRepositoryImpl : public CpaRepository<Entity, ID> {
         
         return entity;
     }
+
+    // Read: Find first entity
+    Public Virtual optional<Entity> FindFirst() override {
+        StdVector<ID> ids = ReadAllIds();
+        if (ids.empty()) {
+            return std::nullopt;
+        }
+        return FindById(ids[0]);
+    }
+
     // Read: Find all entities
     Public Virtual StdVector<Entity> FindAll() override {
         StdVector<Entity> entities;

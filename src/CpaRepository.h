@@ -13,6 +13,9 @@ class CpaRepository {
     // Read: Find entity by ID
     Public Virtual optional<Entity> FindById(ID id) = 0;
 
+    // Read: Find first entity
+    Public Virtual optional<Entity> FindFirst() = 0;
+
     // Read: Find all entities
     Public Virtual StdVector<Entity> FindAll() = 0;
 
