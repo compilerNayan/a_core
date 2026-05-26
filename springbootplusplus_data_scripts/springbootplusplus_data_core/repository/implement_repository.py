@@ -54,6 +54,10 @@ def generate_impl_class(class_name: str, entity_type: str, id_type: str, source_
         return CpaRepositoryImpl<Entity, ID>::FindById(id);
     }}
 
+    Public Virtual optional<Entity> FindFirst() override {{
+        return CpaRepositoryImpl<Entity, ID>::FindFirst();
+    }}
+
     Public Virtual StdVector<Entity> FindAll() override {{
         return CpaRepositoryImpl<Entity, ID>::FindAll();
     }}
