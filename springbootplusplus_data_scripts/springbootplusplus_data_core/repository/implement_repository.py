@@ -135,6 +135,10 @@ class {impl_class_name} : public {class_name}<Entity, ID>, public CpaRepositoryI
         return CpaRepositoryImpl<{entity_type}, {id_type}>::FindById(id);
     }}
 
+    Public Virtual optional<{entity_type}> FindFirst() override {{
+        return CpaRepositoryImpl<{entity_type}, {id_type}>::FindFirst();
+    }}
+
     Public Virtual StdVector<{entity_type}> FindAll() override {{
         return CpaRepositoryImpl<{entity_type}, {id_type}>::FindAll();
     }}
