@@ -12,7 +12,7 @@ import importlib.util
 import traceback
 from pathlib import Path
 
-os.environ.setdefault("SERIALIZER_PIPELINE", "serializationlib")
+os.environ["SERIALIZER_PIPELINE"] = "serializationlib"
 
 # print("Executing NayanSerializer/scripts/serializer/00_process_serializable_classes.py")
 # print("Executing NayanSerializer/scripts/serializer/00_process_serializable_classes.py")
@@ -198,7 +198,7 @@ spec_s8.loader.exec_module(S8_handle_enum_serialization)
 def discover_all_libraries(project_dir):
     """
     Discover all library directories in build/_deps/ (CMake) and .pio/libdeps/ (PlatformIO).
-    NOTE: serializationlib currently requires src/ (header-only include/ libs are skipped).
+    Supports both src-based and header-only (include/endpoint/internal) libraries.
     """
     libraries = []
     seen_libraries = set()
@@ -211,7 +211,7 @@ def discover_all_libraries(project_dir):
     project_path = Path(project_dir).resolve()
     if dbg:
         dbg.log(f"discover_all_libraries: project_dir={project_path}")
-        dbg.log("discovery rule: library must have src/ directory (include/-only libs are skipped)")
+        dbg.log("discovery rule: include libs with src/ or include/endpoint/internal layout")
 
     build_deps = project_path / "build" / "_deps"
 
@@ -244,10 +244,43 @@ def discover_all_libraries(project_dir):
                                 f"LIB_INCLUDED source=cmake name={lib_name} path={lib_root} "
                                 f"reason=has-src layout={dbg.format_layout(layout)}"
                             )
+                elif (lib_dir / "include").exists() and (lib_dir / "include").is_dir():
+                    lib_root = lib_dir.resolve()
+                    lib_path_str = str(lib_root)
+                    if lib_path_str not in seen_libraries:
+                        seen_libraries.add(lib_path_str)
+                        libraries.append(lib_root)
+                        if dbg:
+                            dbg.log(
+                                f"LIB_INCLUDED source=cmake name={lib_name} path={lib_root} "
+                                f"reason=has-include layout={dbg.format_layout(layout)}"
+                            )
+                elif (lib_dir / "endpoint").exists() and (lib_dir / "endpoint").is_dir():
+                    lib_root = lib_dir.resolve()
+                    lib_path_str = str(lib_root)
+                    if lib_path_str not in seen_libraries:
+                        seen_libraries.add(lib_path_str)
+                        libraries.append(lib_root)
+                        if dbg:
+                            dbg.log(
+                                f"LIB_INCLUDED source=cmake name={lib_name} path={lib_root} "
+                                f"reason=has-endpoint layout={dbg.format_layout(layout)}"
+                            )
+                elif (lib_dir / "internal").exists() and (lib_dir / "internal").is_dir():
+                    lib_root = lib_dir.resolve()
+                    lib_path_str = str(lib_root)
+                    if lib_path_str not in seen_libraries:
+                        seen_libraries.add(lib_path_str)
+                        libraries.append(lib_root)
+                        if dbg:
+                            dbg.log(
+                                f"LIB_INCLUDED source=cmake name={lib_name} path={lib_root} "
+                                f"reason=has-internal layout={dbg.format_layout(layout)}"
+                            )
                 elif dbg:
                     dbg.log(
                         f"LIB_SKIPPED source=cmake name={lib_name} path={lib_dir} "
-                        f"reason=requires-src-for-serializationlib layout={dbg.format_layout(layout)}",
+                        f"reason=no-src/include/endpoint/internal layout={dbg.format_layout(layout)}",
                         level="WARN",
                     )
     elif dbg:
@@ -268,7 +301,10 @@ def discover_all_libraries(project_dir):
                         lib_path_str = str(lib_root)
                         layout = dbg.library_layout_flags(lib_root) if dbg else {}
                         has_src = (lib_root / "src").exists() and (lib_root / "src").is_dir()
-                        if has_src:
+                        has_include = (lib_root / "include").exists() and (lib_root / "include").is_dir()
+                        has_endpoint = (lib_root / "endpoint").exists() and (lib_root / "endpoint").is_dir()
+                        has_internal = (lib_root / "internal").exists() and (lib_root / "internal").is_dir()
+                        if has_src or has_include or has_endpoint or has_internal:
                             if lib_path_str not in seen_libraries:
                                 seen_libraries.add(lib_path_str)
                                 libraries.append(lib_root)
@@ -280,8 +316,8 @@ def discover_all_libraries(project_dir):
                         elif dbg:
                             dbg.log(
                                 f"LIB_SKIPPED source=pio env={env_dir.name} name={lib_dir.name} "
-                                f"path={lib_root} reason=requires-src-for-serializationlib "
-                                f"(has include-only layout? {dbg.format_layout(layout)})",
+                                f"path={lib_root} reason=no-src/include/endpoint/internal "
+                                f"layout={dbg.format_layout(layout)}",
                                 level="WARN",
                             )
     elif dbg:
@@ -384,6 +420,10 @@ def process_all_serializable_classes(dry_run=False, serializable_macro=None):
     failed_inject = 0
     interesting_names = ("MqttCredentials", "ConnectionConfig", "PublishTopics", "SubscribeTopics", "RetDto")
 
+    primitive_types = ['int', 'Int', 'CInt', 'long', 'Long', 'CLong', 'float', 'Float', 'CFloat',
+                      'double', 'Double', 'CDouble', 'bool', 'Bool', 'CBool', 'char', 'Char', 'CChar',
+                      'unsigned', 'UInt', 'CUInt', 'short', 'Short', 'CShort']
+
     for file_path in unique_header_files:
         is_interesting = any(name in file_path for name in interesting_names)
         if not os.path.exists(file_path):
@@ -479,6 +519,21 @@ def process_all_serializable_classes(dry_run=False, serializable_macro=None):
 
         if not dry_run and optional_fields:
             S3_inject_serialization.add_include_if_needed(file_path, "<optional>")
+
+        needs_serializer = False
+        for field in fields:
+            field_type = field['type'].strip()
+            if S3_inject_serialization.is_optional_type(field_type):
+                inner_type = S3_inject_serialization.extract_inner_type_from_optional(field_type)
+                is_primitive = any(prim in inner_type for prim in primitive_types)
+                is_string = 'StdString' in inner_type or 'CStdString' in inner_type or 'string' in inner_type.lower()
+                if not is_primitive and not is_string:
+                    needs_serializer = True
+                    break
+        if not dry_run and needs_serializer:
+            S3_inject_serialization.add_include_if_needed(file_path, "<NayanSerializer.h>")
+            if dbg:
+                dbg.log(f"INCLUDE_ADDED file={file_path} include=<NayanSerializer.h>")
 
         success = S3_inject_serialization.inject_methods_into_class(file_path, class_name, methods_code, dry_run=dry_run)
 

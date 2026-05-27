@@ -11,7 +11,7 @@ import importlib.util
 import traceback
 from pathlib import Path
 
-os.environ.setdefault("SERIALIZER_PIPELINE", "springbootplusplus_data")
+os.environ["SERIALIZER_PIPELINE"] = "springbootplusplus_data"
 
 # Import get_client_files from parent directory
 # Handle both direct execution and dynamic loading
@@ -305,6 +305,10 @@ def process_all_serializable_classes(dry_run=False, serializable_macro=None):
     failed_inject = 0
     interesting_names = ("MqttCredentials", "ConnectionConfig", "PublishTopics", "SubscribeTopics", "RetDto")
 
+    primitive_types = ['int', 'Int', 'CInt', 'long', 'Long', 'CLong', 'float', 'Float', 'CFloat',
+                      'double', 'Double', 'CDouble', 'bool', 'Bool', 'CBool', 'char', 'Char', 'CChar',
+                      'unsigned', 'UInt', 'CUInt', 'short', 'Short', 'CShort']
+
     for file_path in unique_header_files:
         is_interesting = any(name in file_path for name in interesting_names)
         if not os.path.exists(file_path):
@@ -426,6 +430,21 @@ def process_all_serializable_classes(dry_run=False, serializable_macro=None):
 
         if not dry_run and optional_fields:
             S3_inject_serialization.add_include_if_needed(file_path, "<optional>")
+
+        needs_serializer = False
+        for field in fields:
+            field_type = field['type'].strip()
+            if S3_inject_serialization.is_optional_type(field_type):
+                inner_type = S3_inject_serialization.extract_inner_type_from_optional(field_type)
+                is_primitive = any(prim in inner_type for prim in primitive_types)
+                is_string = 'StdString' in inner_type or 'CStdString' in inner_type or 'string' in inner_type.lower()
+                if not is_primitive and not is_string:
+                    needs_serializer = True
+                    break
+        if not dry_run and needs_serializer:
+            S3_inject_serialization.add_include_if_needed(file_path, "<NayanSerializer.h>")
+            if dbg:
+                dbg.log(f"INCLUDE_ADDED file={file_path} include=<NayanSerializer.h>")
 
         success = S3_inject_serialization.inject_methods_into_class(file_path, class_name, methods_code, dry_run=dry_run)
 
