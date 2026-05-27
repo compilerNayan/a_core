@@ -19,6 +19,15 @@ def execute_scripts(project_dir, library_dir, serializable_macro="Serializable")
         library_dir: Path to the library directory
         serializable_macro: Name of the macro to search for (default: "Serializable")
     """
+    os.environ["SERIALIZER_PIPELINE"] = "serializationlib"
+    print("[SERIALIZER:serializationlib:INFO] execute_scripts START", flush=True)
+    print(
+        f"[SERIALIZER:serializationlib:INFO] execute_scripts "
+        f"project_dir={project_dir} library_dir={library_dir} "
+        f"SERIALIZABLE_MACRO={serializable_macro} cwd={os.getcwd()}",
+        flush=True,
+    )
+
     # Set project_dir in globals so serializer scripts can access it
     globals()['project_dir'] = project_dir
     globals()['library_dir'] = library_dir
@@ -81,8 +90,36 @@ def execute_scripts(project_dir, library_dir, serializable_macro="Serializable")
                 
                 # Call the main function if it exists
                 if hasattr(serializer_module, 'main'):
-                    serializer_module.main()
+                    result = serializer_module.main()
+                    print(
+                        f"[SERIALIZER:serializationlib:INFO] serializer main() returned {result}",
+                        flush=True,
+                    )
                 elif hasattr(serializer_module, 'process_all_serializable_classes'):
-                    serializer_module.process_all_serializable_classes(dry_run=False)
+                    count = serializer_module.process_all_serializable_classes(dry_run=False)
+                    print(
+                        f"[SERIALIZER:serializationlib:INFO] "
+                        f"process_all_serializable_classes processed_count={count}",
+                        flush=True,
+                    )
+                else:
+                    print(
+                        "[SERIALIZER:serializationlib:WARN] "
+                        "serializer module has no main/process_all_serializable_classes",
+                        flush=True,
+                    )
             except Exception as e:
+                print(f"[SERIALIZER:serializationlib:ERROR] serializer failed: {e}", flush=True)
                 traceback.print_exc()
+        else:
+            print(
+                f"[SERIALIZER:serializationlib:WARN] missing {serializer_script_path}",
+                flush=True,
+            )
+    else:
+        print(
+            f"[SERIALIZER:serializationlib:WARN] missing serializer_dir {serializer_dir}",
+            flush=True,
+        )
+
+    print("[SERIALIZER:serializationlib:INFO] execute_scripts END", flush=True)

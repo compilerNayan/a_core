@@ -168,11 +168,18 @@ library_root = find_library_root()
 stamp_path = _get_stamp_path()
 fingerprint = _compute_scripts_fingerprint(library_root)
 
+_log(f"library_root={library_root}")
+_log(f"project_dir={_get_project_dir()}")
+_log(f"stamp_path={stamp_path}")
+
 if stamp_path is not None and _read_stamp(stamp_path) == fingerprint:
     _log(f"pre-build scripts already up to date (stamp: {stamp_path}); skipping.")
+    _log("To force re-run: delete the stamp file and rebuild.")
 else:
     for relative_script in _PRE_BUILD_SCRIPTS:
+        _log(f"RUNNING pre-build script: {relative_script}")
         _run_script(library_root, relative_script)
+        _log(f"FINISHED pre-build script: {relative_script}")
     if stamp_path is not None:
         _write_stamp(stamp_path, fingerprint)
         _log(f"pre-build scripts completed; stamp written to {stamp_path}.")

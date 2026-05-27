@@ -357,6 +357,12 @@ sys.path.insert(0, str(library_scripts_dir))
 # Set serializable macro name to _Entity (for //@Entity annotation)
 # Using _Entity (with underscore) to match the default expected by execute_scripts
 os.environ['SERIALIZABLE_MACRO'] = '_Entity'
+os.environ['SERIALIZER_PIPELINE'] = 'springbootplusplus_data'
+print(
+    "[SERIALIZER:springbootplusplus_data:INFO] pre_build: "
+    f"SERIALIZABLE_MACRO={os.environ['SERIALIZABLE_MACRO']} (processes @Entity only)",
+    flush=True,
+)
 
 # Get project directory
 project_dir = get_project_dir()
