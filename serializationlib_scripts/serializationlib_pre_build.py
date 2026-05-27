@@ -83,11 +83,6 @@ project_dir = get_project_dir()
 # Get serializable macro name from environment or use default
 serializable_macro = os.environ.get("SERIALIZABLE_MACRO", "Serializable")
 os.environ['SERIALIZER_PIPELINE'] = 'serializationlib'
-print(
-    "[SERIALIZER:serializationlib:INFO] pre_build: "
-    f"SERIALIZABLE_MACRO={serializable_macro} (processes @Serializable only)",
-    flush=True,
-)
 
 # Import and execute scripts
 from serializationlib_execute_scripts import execute_scripts

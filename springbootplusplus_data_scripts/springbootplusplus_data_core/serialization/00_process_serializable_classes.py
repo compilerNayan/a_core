@@ -32,10 +32,7 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 sys.path.insert(0, script_dir)
 
-try:
-    import serializer_debug_log as dbg
-except ImportError:
-    dbg = None
+dbg = None
 
 try:
     from get_client_files import get_client_files

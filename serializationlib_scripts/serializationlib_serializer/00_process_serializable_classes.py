@@ -167,10 +167,7 @@ if not os.path.exists(script_dir) or not os.path.exists(os.path.join(script_dir,
 
 sys.path.insert(0, script_dir)
 
-try:
-    import serializer_debug_log as dbg
-except ImportError:
-    dbg = None
+dbg = None
 
 # Import serializer modules
 s1_path = os.path.join(script_dir, "S1_check_dto_macro.py")

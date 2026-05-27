@@ -38,7 +38,6 @@ def execute_scripts(project_dir, library_dir):
         library_dir: Path to the library directory
     """
     os.environ["SERIALIZER_PIPELINE"] = "springbootplusplus_data"
-    print("[SERIALIZER:springbootplusplus_data:INFO] execute_scripts START", flush=True)
 
     project_dir = _resolve_project_dir(project_dir)
     if project_dir:
@@ -53,13 +52,6 @@ def execute_scripts(project_dir, library_dir):
     serializable_macro = os.environ.get("SERIALIZABLE_MACRO", "_Entity")
     globals()['serializable_macro'] = serializable_macro
 
-    print(
-        f"[SERIALIZER:springbootplusplus_data:INFO] execute_scripts "
-        f"project_dir={project_dir} library_dir={library_dir} "
-        f"SERIALIZABLE_MACRO={serializable_macro} cwd={os.getcwd()}",
-        flush=True,
-    )
-    
     # Add springbootplusplus_data_scripts to path
     current_file = Path(__file__).resolve()
     springbootplusplus_data_scripts_dir = current_file.parent
@@ -108,45 +100,14 @@ def execute_scripts(project_dir, library_dir):
                     
                     # Call the main function if it exists
                     if hasattr(serializer_module, 'main'):
-                        result = serializer_module.main()
-                        print(
-                            f"[SERIALIZER:springbootplusplus_data:INFO] serializer main() returned {result}",
-                            flush=True,
-                        )
+                        serializer_module.main()
                     elif hasattr(serializer_module, 'process_all_serializable_classes'):
-                        count = serializer_module.process_all_serializable_classes(
-                            dry_run=False, serializable_macro=serializable_macro
-                        )
-                        print(
-                            f"[SERIALIZER:springbootplusplus_data:INFO] "
-                            f"process_all_serializable_classes processed_count={count}",
-                            flush=True,
-                        )
-                    else:
-                        print(
-                            "[SERIALIZER:springbootplusplus_data:WARN] "
-                            "serializer module has no main/process_all_serializable_classes",
-                            flush=True,
-                        )
+                        serializer_module.process_all_serializable_classes(dry_run=False, serializable_macro=serializable_macro)
 
                 except Exception as e:
                     import traceback
-                    print(f"[SERIALIZER:springbootplusplus_data:ERROR] serializer failed: {e}", flush=True)
                     traceback.print_exc()
-            else:
-                print(
-                    f"[SERIALIZER:springbootplusplus_data:WARN] missing {serializer_script_path}",
-                    flush=True,
-                )
-        else:
-            print(
-                f"[SERIALIZER:springbootplusplus_data:WARN] missing serialization_dir {serialization_dir}",
-                flush=True,
-            )
     except Exception as e:
         import traceback
-        print(f"[SERIALIZER:springbootplusplus_data:ERROR] execute_scripts failed: {e}", flush=True)
         traceback.print_exc()
-
-    print("[SERIALIZER:springbootplusplus_data:INFO] execute_scripts END", flush=True)
 
