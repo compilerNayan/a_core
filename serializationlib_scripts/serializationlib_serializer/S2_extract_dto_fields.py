@@ -36,10 +36,9 @@ def find_class_boundaries(file_path: str, class_name: str) -> Optional[tuple]:
     brace_count = 0
     in_class = False
     
-    # Pattern to match class declaration
+    # Pattern to match class declaration (exclude "enum class", handled by S8)
     # Matches: "class TestDto : public Serializablex<TestDto> {" or "class TestDto {"
-    # Use a simpler pattern that just checks for class name
-    class_pattern = rf'class\s+{re.escape(class_name)}'
+    class_pattern = rf'(?<!enum\s)class\s+{re.escape(class_name)}\b'
     
     for line_num, line in enumerate(lines, 1):
         stripped_line = line.strip()

@@ -50,8 +50,9 @@ def check_dto_annotation(file_path: str, serializable_annotation: str = "Seriali
     annotation_pattern = rf'/\*\s*{re.escape(annotation_name)}\s*\*/'
     processed_pattern = rf'/\*--\s*{re.escape(annotation_name)}\s*--\*/'
     
-    # Pattern to match class declarations
-    class_pattern = r'class\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:[:{])'
+    # Pattern to match class declarations (exclude "enum class", handled by S8)
+    class_pattern = r'(?<!enum\s)class\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:[:{])'
+    enum_class_pattern = r'enum\s+class\b'
     
     for line_num, line in enumerate(lines, 1):
         stripped_line = line.strip()
@@ -83,6 +84,10 @@ def check_dto_annotation(file_path: str, serializable_annotation: str = "Seriali
                     if next_line.startswith('//') and not re.search(annotation_pattern, next_line):
                         continue
                     
+                    # Serializable enums are handled by S8, not class injection
+                    if re.search(enum_class_pattern, next_line):
+                        break
+
                     # Check for class declaration
                     class_match = re.search(class_pattern, next_line)
                     if class_match:

@@ -453,6 +453,8 @@ def process_all_serializable_classes(dry_run=False, serializable_macro=None):
                         processed_count += 1
                         if dbg:
                             dbg.log(f"ENUM_PROCESSED file={file_path} enum={enum_name}", level="OK")
+            # Enums use S8 template specializations, not S3 class methods
+            continue
 
         dto_info = S1_check_dto_macro.check_dto_macro(file_path, serializable_macro)
 
