@@ -3,7 +3,6 @@
 
 #include "IHttpRequestManager.h"
 #include "IHttpRequestQueue.h"
-#include "IHttpRequestProcessor.h"
 #include "IHttpResponseProcessor.h"
 #include "communication/IServerProvider.h"
 #include "logger/ILogger.h"
@@ -15,8 +14,6 @@ class HttpRequestManager final : public IHttpRequestManager {
     /* @Autowired */
     Private IHttpRequestQueuePtr requestQueue;
 
-    /* @Autowired */
-    Private IHttpRequestProcessorPtr requestProcessor;
 
     /* @Autowired */
     Private IHttpResponseProcessorPtr responseProcessor;
@@ -63,29 +60,11 @@ class HttpRequestManager final : public IHttpRequestManager {
         RetrieveRequestFromLocalServer();
         RetrieveRequestFromCloudServer();
 
-        ProcessRequest();
         ProcessResponse();
         Thread::Sleep(1000);
         return true;
     }
-    
-    Private Bool ProcessRequest() {
-        if (requestProcessor == nullptr) {
-            return false;
-        }
         
-        Bool processedAny = false;
-        while (requestQueue->HasRequests()) {
-            if (requestProcessor->ProcessRequest()) {
-                processedAny = true;
-            } else {
-                break;
-            }
-        }
-        
-        return processedAny;
-    }
-    
     Private Bool ProcessResponse() {
         if (responseProcessor == nullptr) {
             return false;
