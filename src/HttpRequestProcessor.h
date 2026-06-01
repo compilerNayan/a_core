@@ -27,6 +27,16 @@ class HttpRequestProcessor final : public IHttpRequestProcessor {
     // HTTP Request Processing Operations
     // ============================================================================
     
+
+    Public Bool ProcessRequests() override {
+        Bool processedAny = false;
+        while (requestQueue->HasRequests()) {
+            ProcessRequest();
+            processedAny = true;
+        }
+        return processedAny;
+    }
+
     Public Bool ProcessRequest() override {
         if (requestQueue->IsEmpty()) {
             return false;

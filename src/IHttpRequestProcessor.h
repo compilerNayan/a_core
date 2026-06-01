@@ -19,6 +19,12 @@ class IHttpRequestProcessor {
      * @return true if a request was processed, false if queue was empty
      */
     Public Virtual Bool ProcessRequest() = 0;
+
+    /**
+     * @brief Processes all requests from the queue
+     * @return true if any requests were processed, false if queue was empty
+     */
+    Public Virtual Bool ProcessRequests() = 0;
 };
 
 #endif // I_HTTP_REQUEST_PROCESSOR_H
