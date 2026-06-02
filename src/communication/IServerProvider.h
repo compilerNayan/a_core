@@ -4,6 +4,9 @@
 #include <StandardDefines.h>
 #include "IServer.h"
 
+DefineStandardPointers(ILocalServer)
+DefineStandardPointers(ICloudServer)
+
 DefineStandardPointers(IServerProvider)
 class IServerProvider { 
     Public Virtual ~IServerProvider() = default;
