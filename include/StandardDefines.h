@@ -38,6 +38,11 @@ typedef const int64_t CInt64;
 typedef uint64_t UInt64;
 typedef const uint64_t CUInt64;
 
+typedef float Float;
+typedef const float CFloat;
+typedef double Double;
+typedef const double CDouble;
+
 // Character types
 typedef char Char;
 typedef const char CChar;
