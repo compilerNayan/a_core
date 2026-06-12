@@ -36,7 +36,7 @@ def run_l6_generate_code(include_paths: list, exclude_paths: list, dispatcher_fi
     try:
         # Build the command - use script in same directory
         script_path = os.path.join(SCRIPT_DIR, "L6_generate_code_for_all_sources.py")
-        cmd = ["python", script_path]
+        cmd = [sys.executable, script_path]
         
         # Add include paths if provided
         if include_paths:
@@ -95,7 +95,7 @@ def run_l6_di_preprocessor(include_paths: list, exclude_paths: list, dry_run: bo
     try:
         # Build the command - use script in same directory
         script_path = os.path.join(SCRIPT_DIR, "L6_cpp_di_preprocessor.py")
-        cmd = ["python", script_path]
+        cmd = [sys.executable, script_path]
         
         # Add include paths if provided
         if include_paths:

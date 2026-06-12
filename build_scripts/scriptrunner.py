@@ -98,12 +98,21 @@ def find_library_root():
     )
 
 
+def _ensure_python_on_path():
+    """CMake/ESP-IDF subprocesses may omit PlatformIO penv from PATH; child scripts invoke sys.executable."""
+    python_dir = str(Path(sys.executable).resolve().parent)
+    current_path = os.environ.get("PATH", "")
+    if python_dir not in current_path.split(os.pathsep):
+        os.environ["PATH"] = python_dir + os.pathsep + current_path
+
+
 def _run_script(library_root, relative_path):
     script_path = (library_root / relative_path).resolve()
     if not script_path.is_file():
         raise FileNotFoundError(f"Pre-build script not found: {script_path}")
 
     _propagate_project_dir()
+    _ensure_python_on_path()
 
     with open(script_path, encoding="utf-8") as f:
         source = f.read()

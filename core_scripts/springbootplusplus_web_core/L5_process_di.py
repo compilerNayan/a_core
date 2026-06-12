@@ -47,7 +47,7 @@ def run_script(script_name, files, include_paths, exclude_paths, dry_run=False):
         if script_name == "L4_process_component.py":
             # L4_process_component.py expects: files [--include paths] [--exclude paths] [--dry-run]
             script_path = os.path.join(SCRIPT_DIR, script_name)
-            cmd = ["python", script_path]
+            cmd = [sys.executable, script_path]
             
             # Add the specific files to process FIRST (positional arguments)
             cmd.extend(files)
@@ -67,7 +67,7 @@ def run_script(script_name, files, include_paths, exclude_paths, dry_run=False):
         elif script_name == "L4_process_autowired.py":
             # L4_process_autowired.py expects: files [--dry-run]
             script_path = os.path.join(SCRIPT_DIR, script_name)
-            cmd = ["python", script_path]
+            cmd = [sys.executable, script_path]
             
             # Add the specific files to process FIRST (positional arguments)
             cmd.extend(files)

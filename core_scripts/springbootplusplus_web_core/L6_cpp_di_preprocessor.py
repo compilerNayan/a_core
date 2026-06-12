@@ -82,7 +82,7 @@ def run_l5_process_di(file_path: str, include_paths: List[str], exclude_paths: L
     try:
         # Build the command - use script in same directory
         script_path = os.path.join(SCRIPT_DIR, "L5_process_di.py")
-        cmd = ["python", script_path, file_path]
+        cmd = [sys.executable, script_path, file_path]
         
         # Add include paths if provided
         if include_paths:

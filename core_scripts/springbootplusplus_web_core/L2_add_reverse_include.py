@@ -102,7 +102,7 @@ def add_header_include(target_file: str, header_to_include: str, dry_run: bool =
     try:
         # Build the command for add_header_include
         script_path = os.path.join(SCRIPT_DIR, 'add_header_include.py')
-        cmd = ['python', script_path, target_file, '--header', header_to_include]
+        cmd = [sys.executable, script_path, target_file, '--header', header_to_include]
         
         if dry_run:
             cmd.append('--dry-run')

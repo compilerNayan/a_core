@@ -64,9 +64,9 @@ def run_script_sequence(file_path: str, include_paths: List[str], exclude_paths:
         # print("\n--- Step 1: Adding instance code ---")
         script_path = os.path.join(SCRIPT_DIR, 'L3_add_instance_code.py')
         if dry_run:
-            cmd = ['python', script_path, file_path, '--dry-run']
+            cmd = [sys.executable, script_path, file_path, '--dry-run']
         else:
-            cmd = ['python', script_path, file_path]
+            cmd = [sys.executable, script_path, file_path]
         
         # print(f"Running: {' '.join(cmd)}")
         result = subprocess.run(cmd, capture_output=True, text=True, cwd=os.getcwd())
@@ -88,9 +88,9 @@ def run_script_sequence(file_path: str, include_paths: List[str], exclude_paths:
         # print("\n--- Step 2: Adding implementation template ---")
         script_path = os.path.join(SCRIPT_DIR, 'L3_add_implementation_template.py')
         if dry_run:
-            cmd = ['python', script_path, file_path, '--dry-run']
+            cmd = [sys.executable, script_path, file_path, '--dry-run']
         else:
-            cmd = ['python', script_path, file_path]
+            cmd = [sys.executable, script_path, file_path]
         
         # print(f"Running: {' '.join(cmd)}")
         result = subprocess.run(cmd, capture_output=True, text=True, cwd=os.getcwd())
@@ -111,7 +111,7 @@ def run_script_sequence(file_path: str, include_paths: List[str], exclude_paths:
         # Step 3: L2_include_validator_header
         # print("\n--- Step 3: Including validator header ---")
         script_path = os.path.join(SCRIPT_DIR, 'L2_include_validator_header.py')
-        cmd = ['python', script_path, file_path]
+        cmd = [sys.executable, script_path, file_path]
         
         # Add include paths
         if include_paths:
@@ -144,9 +144,9 @@ def run_script_sequence(file_path: str, include_paths: List[str], exclude_paths:
         # print("\n--- Step 4: Commenting interface header ---")
         script_path = os.path.join(SCRIPT_DIR, 'L1_comment_interface_header.py')
         if dry_run:
-            cmd = ['python', script_path, file_path, '--dry-run']
+            cmd = [sys.executable, script_path, file_path, '--dry-run']
         else:
-            cmd = ['python', script_path, file_path]
+            cmd = [sys.executable, script_path, file_path]
         
         # print(f"Running: {' '.join(cmd)}")
         result = subprocess.run(cmd, capture_output=True, text=True, cwd=os.getcwd())
@@ -166,7 +166,7 @@ def run_script_sequence(file_path: str, include_paths: List[str], exclude_paths:
         
         # Step 5: L2_add_reverse_include
         script_path = os.path.join(SCRIPT_DIR, 'L2_add_reverse_include.py')
-        cmd = ['python', script_path, file_path]
+        cmd = [sys.executable, script_path, file_path]
         
         # Add include paths (all in one --include argument)
         if include_paths:

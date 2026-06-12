@@ -278,7 +278,7 @@ def execute_scripts(project_dir, library_dir, all_libs=None, library_scripts_dir
             return
 
         # Build the command
-        cmd = ["python", str(l7_script_path)]
+        cmd = [sys.executable, str(l7_script_path)]
         
         if include_paths:
             cmd.extend(["--include"] + include_paths)
