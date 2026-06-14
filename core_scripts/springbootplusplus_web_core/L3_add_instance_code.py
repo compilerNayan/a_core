@@ -14,6 +14,21 @@ import find_interface_names
 import L1_get_validator_name
 
 
+def is_skippable_comment_line(stripped_line: str) -> bool:
+    """Skip pure comment lines, but not code lines that merely start with an annotation comment."""
+    if not stripped_line:
+        return True
+    if stripped_line.startswith('//'):
+        return True
+    if stripped_line.startswith('*') and '{' not in stripped_line and '}' not in stripped_line:
+        return True
+    if stripped_line.startswith('/*') and stripped_line.endswith('*/'):
+        tail = stripped_line[2:-2].strip()
+        if tail.startswith('@') or not tail:
+            return True
+    return False
+
+
 def find_class_closing_brace(file_path: str) -> Optional[Tuple[int, str]]:
     """
     Find the line containing the class closing brace '};'.
@@ -44,8 +59,8 @@ def find_class_closing_brace(file_path: str) -> Optional[Tuple[int, str]]:
     for line_num, line in enumerate(lines, 1):
         stripped_line = line.strip()
         
-        # Skip commented lines
-        if stripped_line.startswith('//') or stripped_line.startswith('/*') or stripped_line.startswith('*'):
+        # Skip pure comment lines only (keep lines like "/* @RequestBody */ Foo dto) {")
+        if is_skippable_comment_line(stripped_line):
             continue
         
         # Check if this is the class declaration line
