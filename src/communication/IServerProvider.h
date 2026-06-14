@@ -2,6 +2,10 @@
 #define ISERVERPROVIDER_H
 
 #include <StandardDefines.h>
+#include "IHttpRequest.h"
+#include "RequestSource.h"
+#include "IHttpResponse.h"
+
 #include "IServer.h"
 
 DefineStandardPointers(ILocalServer)
