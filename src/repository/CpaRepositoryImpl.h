@@ -272,7 +272,7 @@ class CpaRepositoryImpl : public CpaRepository<Entity, ID> {
                 // Read current file to check if it ends with newline
                 CStdString idsFilePathRef = idsFilePath;
                 if (!fileManager->FileExists(idsFilePathRef)) {
-                    return;
+                    return entity;
                 }
                 StdString currentContents = fileManager->Read(idsFilePathRef);
                 
