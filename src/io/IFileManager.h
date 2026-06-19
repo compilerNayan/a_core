@@ -7,6 +7,9 @@ DefineStandardPointers(IFileManager)
 class IFileManager {
     Public Virtual ~IFileManager() = default;
 
+    // Check if a file exists with the given filename
+    Public Virtual Bool FileExists(CStdString& filename) = 0;
+    
     // Create: Create a new file with the given filename and contents
     Public Virtual Bool Create(CStdString& filename, CStdString& contents) = 0;
 

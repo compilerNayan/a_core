@@ -68,7 +68,7 @@ class CpaRepositoryImpl : public CpaRepository<Entity, ID> {
     // Helper method to get IDs file path
     Protected StdString GetIdsFilePath() {
         StdString tableName = Entity::GetTableName();
-        return StdString(DATABASE_PATH) + GenerateHash(tableName + "_IDs");
+        return StdString(DATABASE_PATH) + tableName + "/ids_" + GenerateHash(tableName + "_IDs");
     }
 
     // Helper method to generate consistent hash for a string input
@@ -90,7 +90,8 @@ class CpaRepositoryImpl : public CpaRepository<Entity, ID> {
         StdString tableName = Entity::GetTableName();
         // Get primary key name (static method)
         StdString primaryKeyName = Entity::GetPrimaryKeyName();
-        return StdString(DATABASE_PATH) + GenerateHash(tableName + "_" + primaryKeyName + "_" + ConvertToString(id));
+        Var idStr = ConvertToString(id);
+        return StdString(DATABASE_PATH) + tableName + "/" + idStr + "_" + GenerateHash(tableName + "_" + primaryKeyName + "_" + ConvertToString(id));
     }
 
     // Helper method to read all IDs from the IDs file
@@ -98,6 +99,9 @@ class CpaRepositoryImpl : public CpaRepository<Entity, ID> {
         StdVector<ID> ids;
         StdString idsFilePath = GetIdsFilePath();
         CStdString idsFilePathRef = idsFilePath;
+        if (!fileManager->FileExists(idsFilePathRef)) {
+            return ids;
+        }
         StdString contents = fileManager->Read(idsFilePathRef);
         
         if (contents.empty()) {
@@ -194,6 +198,9 @@ class CpaRepositoryImpl : public CpaRepository<Entity, ID> {
         
         // Read file contents
         CStdString filePathRef = filePath;
+        if (!fileManager->FileExists(filePathRef)) {
+            return std::nullopt;
+        }
         StdString contents = fileManager->Read(filePathRef);
         
         // Check if file was read successfully (non-empty content)
@@ -264,6 +271,9 @@ class CpaRepositoryImpl : public CpaRepository<Entity, ID> {
                 
                 // Read current file to check if it ends with newline
                 CStdString idsFilePathRef = idsFilePath;
+                if (!fileManager->FileExists(idsFilePathRef)) {
+                    return;
+                }
                 StdString currentContents = fileManager->Read(idsFilePathRef);
                 
                 // Ensure we append with proper newline
@@ -333,6 +343,9 @@ class CpaRepositoryImpl : public CpaRepository<Entity, ID> {
         // Check if the entity file exists (more reliable than checking IDs file)
         StdString filePath = GetFilePath(id);
         CStdString filePathRef = filePath;
+        if (!fileManager->FileExists(filePathRef)) {
+            return false;
+        }
         StdString contents = fileManager->Read(filePathRef);
         return !contents.empty();
     }
